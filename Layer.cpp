@@ -362,7 +362,7 @@ public:
         }
     }
 };
-int train(string filename)
+int train(string filename,ofstream &ofs)
 {
     Square_Difference lossF = Square_Difference();
     Network model(lossF);
@@ -427,7 +427,8 @@ int train(string filename)
             worse = 0;
         }
     }
-    printf("epoch:500,loss:%.20f,iteration:%d\n",sumLoss / iteration, iteration);
+    printf("epoch:500,loss:%.20f\n", sumLoss / iteration);
+    ofs<<filename<< ",loss:"<<sumLoss / iteration<<endl;
     vector<float> xx;
     vector<float> yy;
     vector<float> yyy;
@@ -444,14 +445,17 @@ int train(string filename)
         meanf += fabs(yy.back() - yyy.back());
         maxf = max(maxf, fabs(yy.back() - yyy.back()));
     }
+    ofs<<filename<< ",maxf:"<<maxf <<",meanf:"<<meanf/1000<<endl;
+
     printf("maxf:%f,meanf:%f", maxf, meanf / 1000);
     model.log(filename);
 }
 int main()
 {
+    ofstream filename("./log.txt",ios::out);
     for (int i = 0; i < 1000; i++)
     {
-        train(to_string(i) + ".txt");
+        train(to_string(i) + ".txt",filename);
     }
     
     return 0;
