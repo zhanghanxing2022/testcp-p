@@ -76,10 +76,7 @@ vector<vector<float>> dot(const vector<vector<float>> &left, const vector<vector
     int k, m, n;
     k = left.size();
     m = left[0].size();
-    if (right.size() != m)
-    {
-        assert(false);
-    }
+    
     n = right[0].size();
     vector<float> line(n, 0);
     vector<vector<float>> map(k, line);
@@ -362,7 +359,7 @@ public:
         }
     }
 };
-int train(string filename,ofstream &ofs)
+void train(string filename,ofstream &ofs)
 {
     Square_Difference lossF = Square_Difference();
     Network model(lossF);
@@ -372,7 +369,7 @@ int train(string filename,ofstream &ofs)
 
     vector<float> x;
     vector<float> y;
-    int size = 5000;
+    int size = 50;
     for (int i = 0; i < size; i++)
     {
         x.push_back(-M_PI + ((2 * M_PI) / (size - 1)) * i);
@@ -450,12 +447,13 @@ int train(string filename,ofstream &ofs)
     printf("maxf:%f,meanf:%f", maxf, meanf / 1000);
     model.log(filename);
 }
-int main()
+int main(int argc,char *argv[])
 {
-    ofstream filename("./log.txt",ios::out);
+    printf("%d",argc);
+    ofstream filename(string(argv[1])+ ".txt",ios::out);
     for (int i = 0; i < 1000; i++)
     {
-        train(to_string(i) + ".txt",filename);
+        train(string(argv[1])+"-"+to_string(i) + ".txt",filename);
     }
     
     return 0;
