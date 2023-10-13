@@ -6,6 +6,7 @@
 #include <fstream>
 #include <string>
 #include <iomanip>
+#include<algorithm>
 using namespace std;
 const float pi = 3.14159265359;
 // g++ -o MyProgram Layer.cpp  -Wall -std=c++17 -I/opt/homebrew/Cellar/sfml/2.6.0/include/ -L/opt/homebrew/Cellar/sfml/2.6.0/lib/ -lsfml-graphics -lsfml-window -lsfml-system&&./MyProgram
@@ -61,7 +62,7 @@ void matrixDiv(vector<vector<float>> &map, float r_eng)
     {
         for (auto &y : x)
         {
-            y /= sqrt(r_eng);
+            y /= r_eng;
         }
     }
 }
@@ -108,11 +109,6 @@ vector<vector<float>> T(vector<vector<float>> &left)
 }
 vector<vector<float>> add(const vector<vector<float>> &left, const vector<vector<float>> &right)
 {
-
-    if (left.size() != right.size() || left[0].size() != right[0].size())
-    {
-        assert(false);
-    }
     auto res = as(left);
     for (int i = 0; i < res.size(); i++)
     {
@@ -363,13 +359,13 @@ void train(string filename,ofstream &ofs)
 {
     Square_Difference lossF = Square_Difference();
     Network model(lossF);
-    model.addLayer(Layer(1, 10, new Sigmoid()));
-    model.addLayer(Layer(10, 10, new Sigmoid()));
-    model.addLayer(Layer(10, 1, new X()));
+    model.addLayer(Layer(1, 1000, new Sigmoid()));
+    model.addLayer(Layer(1000, 400, new Sigmoid()));
+    model.addLayer(Layer(400, 1, new X()));
 
     vector<float> x;
     vector<float> y;
-    int size = 50;
+    int size = 5000;
     for (int i = 0; i < size; i++)
     {
         x.push_back(-M_PI + ((2 * M_PI) / (size - 1)) * i);
@@ -377,7 +373,7 @@ void train(string filename,ofstream &ofs)
         // cout << x.back() << " " << y.back() << endl;
     }
     int epoch = 500;
-    float lr = 0.1;
+    float lr = 0.001;
     int batch_size = 2;
     std::vector<int> l(size, 0);
     std::iota(l.begin(), l.end(), 0);
@@ -407,10 +403,10 @@ void train(string filename,ofstream &ofs)
                 auto res = model.predict(X);
                 auto loss_i = model.loss->callLoss(Y, res);
                 all_loss += loss_i[0][0];
-                // cout<<loss_i[0][0]<<" "<<x[j*batch_size+k]<<" "<<y[j*batch_size+k]<<" "<<res[0][0]<<endl;
                 model.back(Y, res);
             }
-            sumLoss += all_loss / batch_size;
+            // cout<<all_loss / batch_size<<" "<<endl;
+
             model.update(batch_size, lr);
         }
 
@@ -420,7 +416,7 @@ void train(string filename,ofstream &ofs)
         }
         if (worse >= 5)
         {
-            lr = max(lr * 0.9, 0.0001);
+            lr = max(lr * 0.9, 0.000001);
             worse = 0;
         }
     }
@@ -451,7 +447,7 @@ int main(int argc,char *argv[])
 {
     printf("%d",argc);
     ofstream filename(string(argv[1])+ ".txt",ios::out);
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < 100; i++)
     {
         train(string(argv[1])+"-"+to_string(i) + ".txt",filename);
     }
